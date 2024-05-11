@@ -6,7 +6,7 @@ import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ForgotPassword } from './forgotpassword.entity';
-import { EmailVerification } from './emailVerification.entity';
+import { EmailVerification } from './emailverification.entity';
 import { Log } from './log.entity';
 import * as nodemailer from 'nodemailer';
 import * as smtpTransport from 'nodemailer-smtp-transport';
