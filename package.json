@@ -6,6 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "rimraf": "./node_modules/rimraf/bin.js",
     "predeploy": "npm install && npm run build",
     "prebuild": "rimraf dist",
     "build": "nest build",
