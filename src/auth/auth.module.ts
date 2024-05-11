@@ -14,6 +14,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { JwtStrategy } from './jwt.strategy';
 import { Log } from './log.entity';
+import { FacebookStrategy } from './facebook.strategy';
+import { GoogleStrategy } from './google.strategy';
 
 @Module({
   imports: [
@@ -27,7 +29,14 @@ import { Log } from './log.entity';
       secret: jwtConstants.secret,
     }),
   ],
-  providers: [AuthService, LocalStrategy, SessionSerializer, JwtStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    SessionSerializer,
+    JwtStrategy,
+    FacebookStrategy,
+    GoogleStrategy,
+  ],
   exports: [AuthService],
   controllers: [AuthController],
 })

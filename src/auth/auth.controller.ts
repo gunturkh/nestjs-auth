@@ -9,6 +9,7 @@ import {
   Body,
   Param,
   Req,
+  HttpStatus,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from 'src/users/users.service';
@@ -18,6 +19,7 @@ import { User } from 'src/users/user.entity';
 import * as bcrypt from 'bcrypt';
 import { AuthGuard } from '@nestjs/passport';
 import { EventType, Log } from './log.entity';
+import { GoogleOAuthGuard } from './google-oauth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -172,5 +174,30 @@ export class AuthController {
   @Get('protected')
   getHello(@Request() req): string {
     return req.user;
+  }
+
+  @Get('/facebook')
+  @UseGuards(AuthGuard('facebook'))
+  async facebookLogin(): Promise<any> {
+    return HttpStatus.OK;
+  }
+
+  @Get('/facebook/redirect')
+  @UseGuards(AuthGuard('facebook'))
+  async facebookLoginRedirect(@Req() req): Promise<any> {
+    return {
+      statusCode: HttpStatus.OK,
+      data: req.user,
+    };
+  }
+
+  @Get('google')
+  @UseGuards(GoogleOAuthGuard)
+  async googleAuth() {}
+
+  @Get('google-redirect')
+  @UseGuards(GoogleOAuthGuard)
+  googleAuthRedirect(@Request() req) {
+    return this.authService.googleLogin(req);
   }
 }
