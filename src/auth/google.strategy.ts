@@ -9,9 +9,16 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     super({
       clientID: configService.get('GOOGLE_CLIENT_ID'),
       clientSecret: configService.get('GOOGLE_CLIENT_SECRET'),
-      callbackURL: 'http://localhost:3000/auth/google-redirect',
+      callbackURL: 'http://localhost:3001/auth/google-redirect',
       scope: ['email', 'profile'],
     });
+  }
+  authenticate(req: any, options: any) {
+    if (!options?.state) {
+      options = { ...options, state: req.params.from };
+    }
+
+    return super.authenticate(req, options);
   }
   async validate(
     accessToken: string,

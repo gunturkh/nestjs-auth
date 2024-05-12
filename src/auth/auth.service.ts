@@ -10,8 +10,8 @@ import { EmailVerification } from './emailverification.entity';
 import { Log } from './log.entity';
 import * as nodemailer from 'nodemailer';
 import * as smtpTransport from 'nodemailer-smtp-transport';
-import { ConfigService } from 'src/config/config.service';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -324,7 +324,7 @@ export class AuthService {
 
   googleLogin(req) {
     if (!req.user) {
-      return 'No user from google';
+      return { message: 'No user from google', user: null };
     }
 
     return {

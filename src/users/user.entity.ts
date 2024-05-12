@@ -18,6 +18,9 @@ export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ length: 255, default: 'New User' })
+  name: string;
+
   @Column({ length: 255 })
   @IsEmail()
   email: string;

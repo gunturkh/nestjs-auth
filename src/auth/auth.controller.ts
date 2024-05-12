@@ -10,6 +10,7 @@ import {
   Param,
   Req,
   HttpStatus,
+  Response,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from 'src/users/users.service';
@@ -197,7 +198,11 @@ export class AuthController {
 
   @Get('google-redirect')
   @UseGuards(GoogleOAuthGuard)
-  googleAuthRedirect(@Request() req) {
-    return this.authService.googleLogin(req);
+  async googleAuthRedirect(@Request() req, @Response() res) {
+    const auth = this.authService.googleLogin(req);
+    console.log('auth', auth);
+    res.redirect(
+      `http://localhost:3000/google-oauth-success-redirect/${auth.user.accessToken}`,
+    );
   }
 }

@@ -4,15 +4,15 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigService } from './config/config.service';
-import { ConfigModule } from './config/config.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 @Module({
   imports: [
     AuthModule,
     UsersModule,
-    ConfigModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
         type: 'postgres',
         host: config.get('TYPEORM_HOST'),
