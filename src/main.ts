@@ -17,6 +17,9 @@ async function bootstrap() {
   app.use(passport.session());
   app.enableCors({
     origin: ['http://localhost:3000', 'https://incite-fe.netlify.app/'],
+    allowedHeaders:
+      'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe',
+    methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
   });
   await app.listen(process.env.PORT || 3001);
 }
