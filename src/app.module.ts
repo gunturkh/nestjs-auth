@@ -11,6 +11,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     UsersModule,
     ConfigModule.forRoot({
       isGlobal: true,
+      ignoreEnvFile: true,
     }),
     TypeOrmModule.forRootAsync({
       useFactory: (config: ConfigService) => ({
