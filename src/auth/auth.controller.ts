@@ -173,8 +173,8 @@ export class AuthController {
 
   @UseGuards(AuthGuard('jwt'))
   @Get('protected')
-  getHello(@Request() req): string {
-    return req.user;
+  async getHello(@Request() req) {
+    return await this.usersService.findByEmail(req.user.email);
   }
 
   @Get('/facebook')
