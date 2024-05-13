@@ -25,7 +25,6 @@ export class UsersService {
         email: email,
       },
     });
-    console.log('result findByEmail', result);
     return result;
   }
 
@@ -47,5 +46,17 @@ export class UsersService {
 
   async update(contact: User): Promise<UpdateResult> {
     return await this.userRepository.update(contact.id, contact);
+  }
+
+  async getStatistic(): Promise<any> {
+    return await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.logs', 'log')
+      .where('user.id = :id', { id: 3 })
+      .getOne();
+  }
+
+  async getUsers(): Promise<any> {
+    return await this.userRepository.find({});
   }
 }

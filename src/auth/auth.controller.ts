@@ -14,12 +14,11 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from 'src/users/users.service';
-import { localAuthGuard } from './local-auth.guard';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { User } from 'src/users/user.entity';
 import * as bcrypt from 'bcrypt';
 import { AuthGuard } from '@nestjs/passport';
-import { EventType, Log } from './log.entity';
+import { EventType, Log } from '../log/log.entity';
 import { GoogleOAuthGuard } from './google-oauth.guard';
 import { ConfigService } from '@nestjs/config';
 
@@ -48,10 +47,11 @@ export class AuthController {
     return { msg: 'Login success', data };
   }
 
-  @UseGuards(localAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @Post('logout')
   async logout(@Req() req) {
     const user = await this.usersService.findByEmail(req.user.email);
+    console.log('logout user', user);
     user.logout_time = new Date();
     const newLog = new Log();
     newLog.user = user;
@@ -175,7 +175,8 @@ export class AuthController {
 
   @UseGuards(AuthGuard('jwt'))
   @Get('protected')
-  async getHello(@Request() req) {
+  async getLoggedUser(@Request() req) {
+    console.log('req.user', req.user);
     return await this.usersService.findByEmail(req.user.email);
   }
 
@@ -194,17 +195,56 @@ export class AuthController {
     };
   }
 
-  @Get('google')
+  @Get('google/:from')
   @UseGuards(GoogleOAuthGuard)
   async googleAuth() {}
 
   @Get('google-redirect')
   @UseGuards(GoogleOAuthGuard)
   async googleAuthRedirect(@Request() req, @Response() res) {
-    const auth = this.authService.googleLogin(req);
-    console.log('auth', auth);
-    res.redirect(
-      `${this.configService.get('DOMAIN')}/google-oauth-success-redirect/${auth.user.accessToken}`,
-    );
+    console.log('from', req.user);
+    if (req.params.from === 'register') {
+      const entity = Object.assign(new User(), req.user);
+      const randomPassword = await this.authService.generateRandomPassword();
+      entity.name = `${req.user.firstName} ${req.user.lastName}`;
+      entity.password = randomPassword;
+      entity.is_verified = true;
+
+      // check user exist
+      const isUserExists = await this.usersService.checkUserExists(
+        entity.email,
+      );
+      console.log('isUserExists', isUserExists);
+      if (isUserExists) {
+        res.redirect(`${this.configService.get('DOMAIN')}/error/user exist`);
+      }
+
+      // create a new user
+      try {
+        const user = await this.usersService.create(entity);
+        if (user) {
+          const auth = await this.login(req);
+          const { data } = auth;
+          res.redirect(
+            `${this.configService.get('DOMAIN')}/google-oauth-success-redirect/${data.accessToken}/${req.params.from}`,
+          );
+        } else {
+          res.redirect(
+            `${this.configService.get('DOMAIN')}/error/Create user from google account failed`,
+          );
+        }
+      } catch (error) {
+        res.redirect(
+          `${this.configService.get('DOMAIN')}/error/Create user from google account failed, Register failure`,
+        );
+      }
+    } else {
+      const auth = await this.login(req);
+      const { data } = auth;
+      console.log('token', data.accessToken);
+      res.redirect(
+        `${this.configService.get('DOMAIN')}/google-oauth-success-redirect/${data.accessToken}/${req.params.from}`,
+      );
+    }
   }
 }

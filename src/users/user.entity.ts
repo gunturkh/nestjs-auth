@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { IsEmail, IsNotEmpty } from 'class-validator';
-import { Log } from 'src/auth/log.entity';
+import { Log } from 'src/log/log.entity';
 
 @Entity()
 @Unique(['email'])

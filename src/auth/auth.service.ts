@@ -7,7 +7,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ForgotPassword } from './forgotpassword.entity';
 import { EmailVerification } from './emailverification.entity';
-import { Log } from './log.entity';
+import { Log } from '../log/log.entity';
 import * as nodemailer from 'nodemailer';
 import * as smtpTransport from 'nodemailer-smtp-transport';
 import { JwtService } from '@nestjs/jwt';
@@ -84,7 +84,7 @@ export class AuthService {
 
   async sendVerifyEmail(email: string, token: number): Promise<boolean> {
     const verifyUrl =
-      this.configService.get('DOMAIN') + '/auth/email/verify/' + token;
+      this.configService.get('DOMAIN') + '/email-verification/' + token;
     let htmlContent = '<p>Visit this link to verify your email address:</p>';
     htmlContent += '<a href=' + verifyUrl + '>' + verifyUrl + '</a>';
     htmlContent +=
@@ -206,7 +206,7 @@ export class AuthService {
       });
 
       const url =
-        this.configService.get('DOMAIN') +
+        this.configService.get('BE_URL') +
         '/auth/email/reset-password/' +
         tokenModel.token;
 
