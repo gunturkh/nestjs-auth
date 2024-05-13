@@ -21,12 +21,14 @@ import * as bcrypt from 'bcrypt';
 import { AuthGuard } from '@nestjs/passport';
 import { EventType, Log } from './log.entity';
 import { GoogleOAuthGuard } from './google-oauth.guard';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private usersService: UsersService,
+    private configService: ConfigService,
   ) {}
 
   @UseGuards(AuthGuard('local'))
@@ -202,7 +204,7 @@ export class AuthController {
     const auth = this.authService.googleLogin(req);
     console.log('auth', auth);
     res.redirect(
-      `http://localhost:3000/google-oauth-success-redirect/${auth.user.accessToken}`,
+      `${this.configService.get('DOMAIN')}/google-oauth-success-redirect/${auth.user.accessToken}`,
     );
   }
 }
