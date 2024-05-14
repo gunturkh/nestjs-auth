@@ -21,6 +21,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { EventType, Log } from '../log/log.entity';
 import { GoogleOAuthGuard } from './google-oauth.guard';
 import { ConfigService } from '@nestjs/config';
+import { UpdatePasswordDto } from 'src/users/dto/update-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -91,6 +92,32 @@ export class AuthController {
     } catch (error) {
       return { msg: 'Create user failed, Register failure' };
     }
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @UsePipes(new ValidationPipe())
+  @Post('change-password')
+  async changePassword(
+    @Request() req,
+    @Body() updatePassword: UpdatePasswordDto,
+  ) {
+    const user = await this.usersService.findByEmail(req.user.email);
+    if (!user) return { msg: 'Cannot find existing user' };
+    if (!updatePassword.current_password)
+      return { msg: 'Missing current password' };
+    if (!updatePassword.password) return { msg: 'Missing password' };
+    const isValidCurrentPassword = bcrypt.compare(
+      updatePassword.current_password,
+      user.password,
+    );
+    if (!isValidCurrentPassword) return { msg: 'Incorrect old password' };
+    user.password = bcrypt.hashSync(
+      updatePassword.password,
+      bcrypt.genSaltSync(8),
+      null,
+    );
+    this.usersService.update(user);
+    return { msg: 'Success change password' };
   }
 
   @Get('email/verify/:token')
