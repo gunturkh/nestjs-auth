@@ -33,8 +33,13 @@ export class AuthController {
 
   @UseGuards(AuthGuard('local'))
   @Post('login')
-  async login(@Request() req) {
-    const user = await this.usersService.findByEmail(req.user.email);
+  async login(
+    @Request() req,
+    @Body() body?: { email: string; password: string },
+  ) {
+    console.log('body', body);
+    const user = await this.usersService.findByEmail(body.email);
+    console.log('user login', user);
     user.updated_time = new Date();
     user.login_count += 1;
 
