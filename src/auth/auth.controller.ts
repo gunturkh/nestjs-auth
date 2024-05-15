@@ -107,22 +107,24 @@ export class AuthController {
     @Body() updatePassword: UpdatePasswordDto,
   ) {
     const user = await this.usersService.findByEmail(req.user.email);
-    if (!user) return { msg: 'Cannot find existing user' };
+    if (!user) return { statusCode: 500, msg: 'Cannot find existing user' };
     if (!updatePassword.current_password)
-      return { msg: 'Missing current password' };
-    if (!updatePassword.password) return { msg: 'Missing password' };
-    const isValidCurrentPassword = bcrypt.compare(
+      return { statusCode: 500, msg: 'Missing current password' };
+    if (!updatePassword.password)
+      return { statusCode: 500, msg: 'Missing password' };
+    const isValidCurrentPassword = bcrypt.compareSync(
       updatePassword.current_password,
       user.password,
     );
-    if (!isValidCurrentPassword) return { msg: 'Incorrect old password' };
+    if (!isValidCurrentPassword)
+      return { statusCode: 500, msg: 'Incorrect old password' };
     user.password = bcrypt.hashSync(
       updatePassword.password,
       bcrypt.genSaltSync(8),
       null,
     );
     this.usersService.update(user);
-    return { msg: 'Success change password' };
+    return { statusCode: 200, msg: 'Success change password' };
   }
 
   @Get('email/verify/:token')
